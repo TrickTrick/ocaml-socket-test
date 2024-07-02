@@ -1,0 +1,1 @@
+let test = "Here is test module"
