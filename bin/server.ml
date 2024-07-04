@@ -1,7 +1,6 @@
 open Lwt
 let counter = ref 0
 
-let listen_address = Unix.inet_addr_loopback
 let file = "jornal.log"
 
 let clients = ref []
@@ -36,7 +35,6 @@ let handle_message msg =
     | "keep-alive"  -> "Server see you"
     | _             -> "Unknown command"
 
-
 let rec handle_connection ic oc () =
     Lwt_io.read_line_opt ic >>=
     (fun msg ->
@@ -61,10 +59,10 @@ let accept_connection conn =
     Logs_lwt.info (fun m -> m "New connection") >>=
     return
 
-let create_socket port =
+let create_socket addr port =
     let open Lwt_unix in
     let sock = socket PF_INET SOCK_STREAM 0 in
-    bind sock @@ ADDR_INET(listen_address, port) |> (fun x -> ignore x);
+    bind sock @@ ADDR_INET(addr, port) |> (fun x -> ignore x);
     listen sock !counter;
     sock
 
@@ -72,9 +70,3 @@ let create_server sock =
     let rec serve () =
         Lwt_unix.accept sock >>= accept_connection >>= serve
     in serve
-
-let rec random_int_in_range min max =
-    let v = Random.int max + 1 in
-    match v with
-    | v when v >= min -> v
-    | _ -> random_int_in_range min max
