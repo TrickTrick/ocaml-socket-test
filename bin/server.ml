@@ -1,13 +1,21 @@
 open Lwt
+(* open Logs *)
 let counter = ref 0
 
-let file = "jornal.log"
-
 let clients = ref []
+(* 
+let setup_logging () =
+    let log_file = "server.log" in
+    let log_channel = Lwt_io.open_file ~mode:Lwt_io.Output log_file in
+    let log_reporter = Logs_lwt_fmt.output log_channel in
+    Logs.set_reporter log_reporter;
+    Logs.set_level (Some Logs.Info) *)
 
 let broadcast_message message =
-    Lwt_list.iter_p (fun client ->
-        Lwt_io.write_line client message
+    Lwt_list.iter_p (fun oc ->
+        Lwt_io.write_line oc message 
+        >>= fun () -> Lwt_io.printf "Message oc: %s\n" message 
+        >>= fun () -> Lwt_io.flush oc
     ) !clients
 
 let watch_stdin () =
@@ -29,20 +37,25 @@ let print_clients_length () =
         ^ "\nClients cnt: " 
         ^ (string_of_int (List.length !clients))
     )
-
+(* 
 let handle_message msg =
     match msg with
-    | "keep-alive"  -> "Server see you"
-    | _             -> "Unknown command"
+    | "keep-alive"  -> Ok
+    | _             -> None *)
 
 let rec handle_connection ic oc () =
     Lwt_io.read_line_opt ic >>=
     (fun msg ->
         match msg with
-        | Some msg -> 
+        (* | Some msg -> 
             let reply = handle_message msg in
-            Lwt_io.write_line oc reply >>= handle_connection ic oc 
+            Lwt_io.write_line oc reply >>= handle_connection ic oc  *)
         (* | None -> Logs_lwt.info (fun m -> m "Connection closed") >>= return) *)
+        | Some msg -> 
+            (* let reply = handle_message msg in *)
+            (* Logs.info (fun m -> m "Handling event: %s" msg); *)
+            Lwt_io.printf "From client %s.\n" msg >>=
+            handle_connection ic oc
         | None ->
             Lwt_io.printf "Client disconnected.\n" >>= fun () ->
             clients := List.filter (fun c -> c != oc) !clients;
