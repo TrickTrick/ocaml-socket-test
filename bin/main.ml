@@ -1,3 +1,6 @@
+open Lwt
+open Lwt.Infix
+
 let usage_msg = "main [ARG] -c <count for child procesess>"
 let input_files = ref []
 let anon_fun filename =
@@ -9,18 +12,16 @@ let port = 54321
 let speclist =
   [("-c", Arg.Set_int count, "Set count for child procesess")]
 
-open Lwt
 let rec run_command cmd args =
   let process = Lwt_process.open_process_in (cmd, Array.of_list (cmd :: args)) in
   Lwt_io.read process#stdout >>= fun _ ->
   process#close >>= fun _ -> 
   run_command cmd args (* auto start after die *)
-
+  (* @todo log it *)
 
 let () =
   Arg.parse speclist anon_fun usage_msg;
 
-  (* let () = Logs.set_reporter (create_file_reporter "logfile.log") in *)
   let () = Logs.set_reporter (Logs.format_reporter ()) in
   let () = Logs.set_level (Some Logs.Info) in
 
@@ -44,6 +45,6 @@ let () =
   let print_clients_length = Server.print_clients_length () in
   (* let logger = setup_logging () in *)
 
-  Lwt_main.run (Lwt.join [stdin_watcher; print_clients_length; server; clients])
+  Lwt_main.run (Lwt.join [server; clients; stdin_watcher; print_clients_length])
 
 
