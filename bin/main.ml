@@ -15,7 +15,7 @@ let rec run_command cmd args =
   Lwt_io.read process#stdout >>= fun _ ->
   process#close >>= fun _ -> 
   Lwt_io.printf "Process closed.\n" >>= fun _ ->
-  run_command cmd args (* auto start after die *)
+  run_command cmd args
 
 let () =
   Arg.parse speclist anon_fun usage_msg;

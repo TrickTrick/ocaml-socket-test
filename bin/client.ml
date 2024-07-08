@@ -6,6 +6,7 @@ let max_con = 120
 let min_keep = 5
 let max_keep = 20
 let rec random_int_in_range min max =
+  Random.self_init ();
   let v = Random.int max + 1 in
   match v with
   | v when v >= min -> v
