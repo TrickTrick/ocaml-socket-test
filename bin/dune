@@ -1,4 +1,4 @@
 (executable
  (public_name socket)
  (name main)
- (libraries lwt lwt.unix logs logs.lwt fmt socket))
+ (libraries lwt lwt.unix logs logs.lwt socket))
