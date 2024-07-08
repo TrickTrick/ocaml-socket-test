@@ -1,6 +1,4 @@
-open Lwt
 open Lwt.Infix
-
 let usage_msg = "main [ARG] -c <count for child procesess>"
 let input_files = ref []
 let anon_fun filename =
@@ -16,8 +14,8 @@ let rec run_command cmd args =
   let process = Lwt_process.open_process_in (cmd, Array.of_list (cmd :: args)) in
   Lwt_io.read process#stdout >>= fun _ ->
   process#close >>= fun _ -> 
+  Lwt_io.printf "Process closed.\n" >>= fun _ ->
   run_command cmd args (* auto start after die *)
-  (* @todo log it *)
 
 let () =
   Arg.parse speclist anon_fun usage_msg;
@@ -43,7 +41,6 @@ let () =
   let server = serve () in
   let stdin_watcher = Server.watch_stdin () in
   let print_clients_length = Server.print_clients_length () in
-  (* let logger = setup_logging () in *)
 
   Lwt_main.run (Lwt.join [server; clients; stdin_watcher; print_clients_length])
 

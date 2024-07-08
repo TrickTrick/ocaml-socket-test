@@ -1,5 +1,5 @@
 open Lwt
-(* open Logs *)
+
 let counter = ref 0
 
 let clients = ref []
@@ -7,7 +7,7 @@ let clients = ref []
 let broadcast_message message =
     Lwt_list.iter_p (fun oc ->
         Lwt_io.write_line oc message 
-        >>= fun () -> Lwt_io.printf "Message oc: %s\n" message 
+        >>= fun () -> Lwt_io.printf "[Server] Message oc: %s\n" message 
         >>= fun () -> Lwt_io.flush oc
     ) !clients
 
@@ -36,8 +36,6 @@ let rec handle_connection ic oc () =
     (fun msg ->
         match msg with
         | Some msg -> 
-            (* let reply = handle_message msg in *)
-            (* Logs.info (fun m -> m "Handling event: %s" msg); *)
             Lwt_io.printf "From client %s.\n" msg >>=
             handle_connection ic oc
         | None ->
