@@ -28,7 +28,7 @@ let () =
   let serve = Server.create_server sock in
 
   let start_processes = 
-    let cmd = "./client" in
+    let cmd = "_build/default/bin/client.exe" in
     let args = [] in
     Lwt_list.iter_p (fun _ -> run_command cmd args) (List.init !count (fun x -> x))
   in
